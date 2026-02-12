@@ -1,0 +1,282 @@
+You are a senior frontend architect building a production-grade government web application frontend.
+
+Build a modern, responsive, enterprise-ready frontend for an Automated OOH Booking System.
+
+CRITICAL REQUIREMENTS
+
+The project MUST:
+
+Be exportable to GitHub via Git
+
+Be framework-standard (no proprietary Replit-only tooling)
+
+Be container-ready (Dockerfile included)
+
+Be buildable using npm install and npm run build
+
+Produce a production build folder ready for Azure deployment
+
+Not rely on server-side Replit features
+
+Use:
+
+React (Vite) OR Next.js (App Router)
+
+TypeScript
+
+Tailwind CSS
+
+Axios for API calls
+
+React Router (if Vite) or built-in routing (if Next.js)
+
+Environment variables via .env
+
+ESLint + Prettier
+
+Proper folder structure
+
+The UI must be enterprise/government appropriate:
+
+Clean
+
+Accessible (WCAG-friendly structure)
+
+Role-based navigation
+
+Professional dashboard design
+
+No flashy startup styling
+
+FUNCTIONAL SCREENS TO BUILD
+
+Login Screen
+
+Placeholder for Azure Entra ID integration
+
+Support OAuth redirect pattern
+
+Include environment variable for AUTH_ENDPOINT
+
+Do not hardcode credentials
+
+Role-Based Dashboard
+Roles:
+
+Department Admin
+
+Campaign Planner
+
+Finance Officer
+
+Supplier Admin
+
+Supplier User
+
+Auditor (Read-only)
+
+Sidebar navigation adapts based on role.
+
+Campaign Planning Screen
+
+Create campaign form
+
+Site selection grid
+
+Budget input
+
+Date selection
+
+Mock reach calculation
+
+Save draft
+
+Booking Management Screen
+
+Booking list table
+
+Status indicators (Pending / Approved / Rejected / In Progress / Completed)
+
+Filtering and search
+
+View booking details drawer
+
+Artwork Upload Screen
+
+File upload component
+
+Client-side file size validation (configurable)
+
+Display file metadata
+
+Show validation status
+
+Proof of Flighting Upload Screen
+
+Upload with GPS + timestamp metadata fields
+
+Display evidence history
+
+Compliance Documentation Screen
+
+Upload SBD/CSO documents
+
+List per campaign
+
+Download button (max 5MB validation logic)
+
+Invoice & Reporting Screen
+
+Invoice list
+
+Download PDF button (mock)
+
+Export to Excel button (mock)
+
+Dashboard cards (Total Campaigns, Active, Spend, etc.)
+
+Admin Panel
+
+User management UI
+
+Role assignment UI
+
+System settings placeholder
+
+ARCHITECTURE REQUIREMENTS
+
+Folder Structure:
+
+/src
+/components
+/layouts
+/pages
+/hooks
+/services
+/types
+/utils
+/assets
+
+/services/api.ts must:
+
+Use Axios
+
+Read API base URL from environment variable
+
+Support JWT token injection
+
+Handle 401 redirect to login
+
+Create:
+
+Auth context
+
+Role-based route guard
+
+Protected routes
+
+Loading and error states
+
+AZURE COMPATIBILITY REQUIREMENTS
+
+Include:
+
+Dockerfile for Azure App Service
+
+.dockerignore
+
+.env.example
+
+README.md with:
+
+npm install
+
+npm run dev
+
+npm run build
+
+docker build instructions
+
+Azure deployment guidance
+
+App must:
+
+Build to /dist (Vite) or .next (Next.js)
+
+Work as static build
+
+Support environment variables at build time
+
+Avoid hardcoded URLs
+
+Include SPA fallback configuration example for Azure App Service (web.config or equivalent).
+
+SECURITY & BEST PRACTICES
+
+No sensitive data in frontend
+
+All auth assumed handled by backend/Azure
+
+Token stored securely (memory or secure cookie assumption)
+
+No localStorage for sensitive tokens
+
+Role-based rendering
+
+UI DESIGN REQUIREMENTS
+
+Neutral professional color scheme
+
+Government-appropriate layout
+
+Clean typography
+
+Responsive design
+
+Accessible labels and aria attributes
+
+No animation-heavy UI
+
+OUTPUT REQUIRED
+
+Generate:
+
+Full project structure
+
+Key files
+
+Main components
+
+Routing setup
+
+Auth context
+
+API service
+
+Dockerfile
+
+README.md
+
+Environment variable usage
+
+Example .env.example
+
+Do NOT:
+
+Use Replit-specific packages
+
+Use proprietary hosting code
+
+Assume backend exists
+
+Include fake secrets
+
+Ensure the project is:
+
+Production-ready
+
+Azure-deployable
+
+Git-export compatible
+
+Enterprise appropriate
