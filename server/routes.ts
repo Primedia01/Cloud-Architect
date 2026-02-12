@@ -297,6 +297,163 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/seed", async (_req: Request, res: Response) => {
+    try {
+      const existing = await storage.getUserByUsername("admin");
+      if (existing) {
+        return res.json({ message: "Seed data already exists" });
+      }
+
+      const admin = await storage.createUser({
+        username: "admin",
+        password: "admin123",
+        fullName: "System Administrator",
+        email: "admin@gov.za",
+        role: "department_admin",
+        active: true,
+      });
+
+      await storage.createUser({
+        username: "planner",
+        password: "planner123",
+        fullName: "Jane Mokoena",
+        email: "jane.mokoena@gov.za",
+        role: "campaign_planner",
+        active: true,
+      });
+
+      await storage.createUser({
+        username: "finance",
+        password: "finance123",
+        fullName: "Thabo Nkosi",
+        email: "thabo.nkosi@gov.za",
+        role: "finance_officer",
+        active: true,
+      });
+
+      await storage.createUser({
+        username: "supplier",
+        password: "supplier123",
+        fullName: "Supplier Manager",
+        email: "manager@supplier.co.za",
+        role: "supplier_admin",
+        active: true,
+      });
+
+      await storage.createUser({
+        username: "auditor",
+        password: "auditor123",
+        fullName: "Audit Officer",
+        email: "audit@gov.za",
+        role: "auditor",
+        active: true,
+      });
+
+      const supplier1 = await storage.createSupplier({
+        name: "JCDecaux South Africa",
+        contactPerson: "Sarah van der Merwe",
+        email: "sarah@jcdecaux.co.za",
+        phone: "+27 11 555 0001",
+        address: "Johannesburg, Gauteng",
+        active: true,
+      });
+
+      const supplier2 = await storage.createSupplier({
+        name: "Primedia Outdoor",
+        contactPerson: "David Pillay",
+        email: "david@primedia.co.za",
+        phone: "+27 21 555 0002",
+        address: "Cape Town, Western Cape",
+        active: true,
+      });
+
+      const campaign1 = await storage.createCampaign({
+        name: "Public Health Awareness Q1",
+        description: "National health awareness campaign targeting urban areas",
+        status: "in_progress",
+        budget: "450000.00",
+        startDate: new Date("2026-01-15"),
+        endDate: new Date("2026-03-31"),
+        region: "Gauteng",
+        targetReach: 500000,
+        createdBy: admin.id,
+      });
+
+      const campaign2 = await storage.createCampaign({
+        name: "Road Safety Campaign",
+        description: "Easter road safety awareness billboards",
+        status: "draft",
+        budget: "280000.00",
+        startDate: new Date("2026-04-01"),
+        endDate: new Date("2026-04-30"),
+        region: "Western Cape",
+        targetReach: 300000,
+        createdBy: admin.id,
+      });
+
+      await storage.createBooking({
+        campaignId: campaign1.id,
+        supplierId: supplier1.id,
+        siteDescription: "N1 Highway Billboard - Midrand",
+        location: "Midrand, Gauteng",
+        mediaType: "Billboard",
+        cost: "85000.00",
+        status: "approved",
+        startDate: new Date("2026-01-15"),
+        endDate: new Date("2026-03-31"),
+      });
+
+      await storage.createBooking({
+        campaignId: campaign1.id,
+        supplierId: supplier2.id,
+        siteDescription: "Sandton City Digital Screen",
+        location: "Sandton, Gauteng",
+        mediaType: "Digital",
+        cost: "120000.00",
+        status: "in_progress",
+        startDate: new Date("2026-02-01"),
+        endDate: new Date("2026-03-31"),
+      });
+
+      await storage.createBooking({
+        campaignId: campaign2.id,
+        supplierId: supplier2.id,
+        siteDescription: "N2 Cape Town Airport Approach",
+        location: "Cape Town, Western Cape",
+        mediaType: "Billboard",
+        cost: "95000.00",
+        status: "pending",
+        startDate: new Date("2026-04-01"),
+        endDate: new Date("2026-04-30"),
+      });
+
+      await storage.createInvoice({
+        campaignId: campaign1.id,
+        supplierId: supplier1.id,
+        invoiceNumber: "INV-2026-001",
+        amount: "85000.00",
+        status: "paid",
+        issuedAt: new Date("2026-01-20"),
+        dueDate: new Date("2026-02-20"),
+      });
+
+      await storage.createInvoice({
+        campaignId: campaign1.id,
+        supplierId: supplier2.id,
+        invoiceNumber: "INV-2026-002",
+        amount: "120000.00",
+        status: "sent",
+        issuedAt: new Date("2026-02-05"),
+        dueDate: new Date("2026-03-05"),
+      });
+
+      return res.status(201).json({ message: "Seed data created successfully" });
+    } catch (error) {
+      console.error("Seed error:", error);
+      return res.status(500).json({ message: "Failed to seed data" });
+    }
+  });
+
   app.get("/api/dashboard/stats", async (_req: Request, res: Response) => {
     try {
       const stats = await storage.getDashboardStats();
