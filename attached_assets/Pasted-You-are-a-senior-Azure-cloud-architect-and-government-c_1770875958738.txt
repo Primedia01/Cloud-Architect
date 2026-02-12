@@ -1,0 +1,193 @@
+You are a senior Azure cloud architect and government cybersecurity consultant.
+
+Design a production-grade Microsoft Azure architecture for a Government OOH Automated Booking System that meets the following requirements:
+
+PROJECT CONTEXT
+The system is an Automated Out of Home (OOH) Booking Platform for a South African government department.
+
+It must support:
+
+Campaign planning and booking workflow
+
+Supplier contract management
+
+Artwork uploads and validation
+
+Proof of flighting uploads (GPS/time stamped)
+
+Invoice generation
+
+Post-campaign reporting dashboards
+
+Real-time inventory and pricing updates
+
+Geo-location segmentation
+
+Compliance documentation uploads (SBD, CSO per campaign)
+
+Role-based access control
+
+Multi-user access
+
+Admin and supplier portals
+
+MANDATORY REQUIREMENTS
+
+Fully cloud-based
+
+Hosted within Microsoft Azure South Africa region
+
+Primary region: South Africa North
+
+Disaster recovery: South Africa West
+
+All data and backups must remain within the Republic of South Africa
+
+POPIA compliant
+
+Secure by design
+
+36-month SLA capable
+
+Automated backups
+
+Cybersecurity controls
+
+Data ownership remains with client
+
+Ability to export data in Excel and PDF
+
+Max file download size 5MB
+
+Operable via web browser on Windows 10 and 11
+
+Must support minimum 99% uptime
+
+DELIVERABLES REQUIRED
+
+Azure Architecture Stack
+Provide:
+
+List of Azure services to be used
+
+Justification for each service
+
+Network architecture design
+
+High availability design
+
+Disaster recovery strategy
+
+Backup strategy
+
+Monitoring and logging architecture
+
+Identity and access management design
+
+Storage architecture
+
+Security controls architecture
+
+Architecture Flow Explanation
+Provide:
+
+Step-by-step system flow from user login to campaign execution
+
+Data flow explanation
+
+API integration design
+
+External supplier integration model
+
+Document storage handling
+
+Security & Compliance Controls
+Provide:
+
+Encryption at rest and in transit
+
+Key management
+
+Role-based access control
+
+Multi-factor authentication
+
+Audit logging
+
+Threat detection
+
+Vulnerability management
+
+Penetration testing approach
+
+POPIA compliance alignment
+
+Data retention and deletion policy
+
+Disaster recovery RPO and RTO targets
+
+Hosting & Security Section for Tender Submission
+Draft a formal, procurement-ready section titled:
+
+"Hosting, Security and Compliance Architecture"
+
+It must:
+
+Be written in formal tender language
+
+Be structured in paragraphs, not bullet points
+
+Clearly state data residency within South Africa
+
+Confirm client data ownership
+
+Confirm SLA capability
+
+Confirm cybersecurity posture
+
+Confirm disaster recovery
+
+Confirm backup strategy
+
+Confirm compliance alignment
+
+Avoid marketing language
+
+Sound suitable for a government RFB submission
+
+Technical SLA Framework
+Provide:
+
+Uptime commitment
+
+Response times (Critical, High, Medium, Low)
+
+Support model
+
+Monitoring model
+
+Escalation model
+
+Optional Diagram Description
+Provide a text description of how an architecture diagram should be drawn (for PowerPoint creation).
+
+IMPORTANT
+The design must be:
+
+Enterprise-grade
+
+Government-appropriate
+
+Audit-defensible
+
+POPIA-aligned
+
+No use of US or EU data centres
+
+No generic statements
+
+No startup shortcuts
+
+No reference to Replit in final architecture
+
+Output must be detailed, structured, and professional.
