@@ -18,6 +18,7 @@ import {
   X,
   Shield,
   ChevronRight,
+  Monitor,
 } from "lucide-react";
 
 interface NavItem {
@@ -44,6 +45,12 @@ const navItems: NavItem[] = [
     label: "Bookings",
     href: "/bookings",
     icon: CalendarCheck,
+    roles: ["department_admin", "campaign_planner", "supplier_admin", "supplier_user", "auditor"],
+  },
+  {
+    label: "Live Inventory",
+    href: "/inventory",
+    icon: Monitor,
     roles: ["department_admin", "campaign_planner", "supplier_admin", "supplier_user", "auditor"],
   },
   {

@@ -11,6 +11,7 @@ import Campaigns from "@/pages/campaigns";
 import Bookings from "@/pages/bookings";
 import Documents from "@/pages/documents";
 import Invoices from "@/pages/invoices";
+import Inventory from "@/pages/inventory";
 import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 
@@ -61,6 +62,7 @@ function Router() {
       <Route path="/" component={() => <ProtectedRoute component={Dashboard} />} />
       <Route path="/campaigns" component={() => <ProtectedRoute component={Campaigns} />} />
       <Route path="/bookings" component={() => <ProtectedRoute component={Bookings} />} />
+      <Route path="/inventory" component={() => <ProtectedRoute component={Inventory} />} />
       <Route path="/documents" component={() => <ProtectedRoute component={Documents} />} />
       <Route path="/invoices" component={() => <ProtectedRoute component={Invoices} />} />
       <Route path="/admin" component={() => <ProtectedRoute component={Admin} />} />

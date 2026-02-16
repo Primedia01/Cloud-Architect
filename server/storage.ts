@@ -9,7 +9,8 @@ import {
   type Booking, type InsertBooking,
   type Document, type InsertDocument,
   type Invoice, type InsertInvoice,
-  users, suppliers, campaigns, bookings, documents, invoices,
+  type Inventory, type InsertInventory,
+  users, suppliers, campaigns, bookings, documents, invoices, inventory,
 } from "@shared/schema";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -62,6 +63,13 @@ export interface IStorage {
   updateInvoice(id: string, data: Partial<InsertInvoice>): Promise<Invoice | undefined>;
 
   getDashboardStats(): Promise<DashboardStats>;
+
+  getInventory(): Promise<Inventory[]>;
+  getInventoryBySupplier(supplierId: string): Promise<Inventory[]>;
+  getInventoryItem(id: string): Promise<Inventory | undefined>;
+  createInventoryItem(data: InsertInventory): Promise<Inventory>;
+  updateInventoryItem(id: string, data: Partial<InsertInventory>): Promise<Inventory | undefined>;
+  deleteInventoryItem(id: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -203,6 +211,34 @@ export class DatabaseStorage implements IStorage {
   async updateInvoice(id: string, data: Partial<InsertInvoice>): Promise<Invoice | undefined> {
     const [updated] = await db.update(invoices).set(data).where(eq(invoices.id, id)).returning();
     return updated;
+  }
+
+  async getInventory(): Promise<Inventory[]> {
+    return db.select().from(inventory);
+  }
+
+  async getInventoryBySupplier(supplierId: string): Promise<Inventory[]> {
+    return db.select().from(inventory).where(eq(inventory.supplierId, supplierId));
+  }
+
+  async getInventoryItem(id: string): Promise<Inventory | undefined> {
+    const [item] = await db.select().from(inventory).where(eq(inventory.id, id));
+    return item;
+  }
+
+  async createInventoryItem(data: InsertInventory): Promise<Inventory> {
+    const [created] = await db.insert(inventory).values(data).returning();
+    return created;
+  }
+
+  async updateInventoryItem(id: string, data: Partial<InsertInventory>): Promise<Inventory | undefined> {
+    const [updated] = await db.update(inventory).set({ ...data, updatedAt: new Date() }).where(eq(inventory.id, id)).returning();
+    return updated;
+  }
+
+  async deleteInventoryItem(id: string): Promise<boolean> {
+    const result = await db.delete(inventory).where(eq(inventory.id, id)).returning();
+    return result.length > 0;
   }
 
   async getDashboardStats(): Promise<DashboardStats> {

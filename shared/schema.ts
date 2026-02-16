@@ -115,6 +115,43 @@ export const invoices = pgTable("invoices", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const inventoryStatusEnum = pgEnum("inventory_status", [
+  "available",
+  "booked",
+  "maintenance",
+  "reserved",
+]);
+
+export const inventory = pgTable("inventory", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  supplierId: varchar("supplier_id").notNull(),
+  screenName: text("screen_name").notNull(),
+  screenType: text("screen_type").notNull(),
+  location: text("location").notNull(),
+  region: text("region").notNull(),
+  gpsLatitude: text("gps_latitude"),
+  gpsLongitude: text("gps_longitude"),
+  dimensions: text("dimensions"),
+  resolution: text("resolution"),
+  facing: text("facing"),
+  dailyRate: decimal("daily_rate", { precision: 10, scale: 2 }).notNull(),
+  weeklyRate: decimal("weekly_rate", { precision: 10, scale: 2 }),
+  monthlyRate: decimal("monthly_rate", { precision: 12, scale: 2 }),
+  status: inventoryStatusEnum("status").notNull().default("available"),
+  availableFrom: timestamp("available_from"),
+  availableTo: timestamp("available_to"),
+  illuminated: boolean("illuminated").notNull().default(false),
+  digital: boolean("digital").notNull().default(false),
+  trafficCount: integer("traffic_count"),
+  notes: text("notes"),
+  active: boolean("active").notNull().default(true),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const insertInventorySchema = createInsertSchema(inventory).omit({ id: true, updatedAt: true });
+export type InsertInventory = z.infer<typeof insertInventorySchema>;
+export type Inventory = typeof inventory.$inferSelect;
+
 export const insertUserSchema = createInsertSchema(users).omit({ id: true });
 export const insertSupplierSchema = createInsertSchema(suppliers).omit({ id: true });
 export const insertCampaignSchema = createInsertSchema(campaigns).omit({ id: true, createdAt: true });
