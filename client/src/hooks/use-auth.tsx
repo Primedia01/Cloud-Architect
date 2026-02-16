@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import type { User } from "@shared/schema";
 import { api } from "@/lib/api";
+import { queryClient } from "@/lib/queryClient";
 
 type AuthUser = Omit<User, "password">;
 
@@ -39,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("ooh_user_id");
     localStorage.removeItem("ooh_user");
     setUser(null);
+    queryClient.clear();
   }, []);
 
   const hasRole = useCallback(

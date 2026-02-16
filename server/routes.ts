@@ -298,13 +298,28 @@ export async function registerRoutes(
     }
   });
 
+  async function getRequestUser(req: Request) {
+    const userId = req.headers["user-id"] as string;
+    if (!userId) return undefined;
+    return storage.getUser(userId);
+  }
+
+  function isSupplierRole(role: string) {
+    return role === "supplier_admin" || role === "supplier_user";
+  }
+
   app.get("/api/inventory", async (req: Request, res: Response) => {
     try {
       const { supplierId, region, status, screenType } = req.query;
+      const user = await getRequestUser(req);
       let items = await storage.getInventory();
-      if (supplierId) {
+
+      if (user && isSupplierRole(user.role) && user.supplierId) {
+        items = items.filter(i => i.supplierId === user.supplierId);
+      } else if (supplierId) {
         items = items.filter(i => i.supplierId === supplierId);
       }
+
       if (region) {
         items = items.filter(i => i.region === region);
       }
@@ -322,9 +337,13 @@ export async function registerRoutes(
 
   app.get("/api/inventory/:id", async (req: Request, res: Response) => {
     try {
+      const user = await getRequestUser(req);
       const item = await storage.getInventoryItem(req.params.id as string);
       if (!item) {
         return res.status(404).json({ message: "Inventory item not found" });
+      }
+      if (user && isSupplierRole(user.role) && user.supplierId && item.supplierId !== user.supplierId) {
+        return res.status(403).json({ message: "Access denied" });
       }
       return res.json(item);
     } catch (error) {
@@ -334,7 +353,12 @@ export async function registerRoutes(
 
   app.post("/api/inventory", async (req: Request, res: Response) => {
     try {
-      const data = insertInventorySchema.parse(req.body);
+      const user = await getRequestUser(req);
+      const body = { ...req.body };
+      if (user && isSupplierRole(user.role) && user.supplierId) {
+        body.supplierId = user.supplierId;
+      }
+      const data = insertInventorySchema.parse(body);
       const item = await storage.createInventoryItem(data);
       return res.status(201).json(item);
     } catch (error) {
@@ -347,10 +371,15 @@ export async function registerRoutes(
 
   app.patch("/api/inventory/:id", async (req: Request, res: Response) => {
     try {
-      const item = await storage.updateInventoryItem(req.params.id as string, req.body);
-      if (!item) {
+      const user = await getRequestUser(req);
+      const existing = await storage.getInventoryItem(req.params.id as string);
+      if (!existing) {
         return res.status(404).json({ message: "Inventory item not found" });
       }
+      if (user && isSupplierRole(user.role) && user.supplierId && existing.supplierId !== user.supplierId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const item = await storage.updateInventoryItem(req.params.id as string, req.body);
       return res.json(item);
     } catch (error) {
       return res.status(500).json({ message: "Internal server error" });
@@ -359,10 +388,15 @@ export async function registerRoutes(
 
   app.delete("/api/inventory/:id", async (req: Request, res: Response) => {
     try {
-      const deleted = await storage.deleteInventoryItem(req.params.id as string);
-      if (!deleted) {
+      const user = await getRequestUser(req);
+      const existing = await storage.getInventoryItem(req.params.id as string);
+      if (!existing) {
         return res.status(404).json({ message: "Inventory item not found" });
       }
+      if (user && isSupplierRole(user.role) && user.supplierId && existing.supplierId !== user.supplierId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      await storage.deleteInventoryItem(req.params.id as string);
       return res.status(204).send();
     } catch (error) {
       return res.status(500).json({ message: "Internal server error" });
@@ -406,23 +440,6 @@ export async function registerRoutes(
           active: true,
         });
 
-        await storage.createUser({
-          username: "supplier",
-          password: "supplier123",
-          fullName: "Supplier Manager",
-          email: "manager@supplier.co.za",
-          role: "supplier_admin",
-          active: true,
-        });
-
-        await storage.createUser({
-          username: "auditor",
-          password: "auditor123",
-          fullName: "Audit Officer",
-          email: "audit@gov.za",
-          role: "auditor",
-          active: true,
-        });
       }
 
       let supplier1, supplier2;
@@ -442,6 +459,25 @@ export async function registerRoutes(
           email: "david@primedia.co.za",
           phone: "+27 21 555 0002",
           address: "Cape Town, Western Cape",
+          active: true,
+        });
+
+        await storage.createUser({
+          username: "supplier",
+          password: "supplier123",
+          fullName: "Supplier Manager",
+          email: "manager@supplier.co.za",
+          role: "supplier_admin",
+          supplierId: supplier1.id,
+          active: true,
+        });
+
+        await storage.createUser({
+          username: "auditor",
+          password: "auditor123",
+          fullName: "Audit Officer",
+          email: "audit@gov.za",
+          role: "auditor",
           active: true,
         });
 

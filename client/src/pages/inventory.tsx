@@ -74,7 +74,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: React.E
 };
 
 export default function InventoryPage() {
-  const { hasRole } = useAuth();
+  const { user, hasRole } = useAuth();
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [regionFilter, setRegionFilter] = useState("all");
@@ -83,10 +83,11 @@ export default function InventoryPage() {
   const [selectedItem, setSelectedItem] = useState<Inventory | null>(null);
   const [addOpen, setAddOpen] = useState(false);
 
+  const isSupplierUser = hasRole("supplier_admin", "supplier_user");
   const canManage = hasRole("department_admin", "supplier_admin", "supplier_user");
 
   const { data: items = [], isLoading } = useQuery<Inventory[]>({
-    queryKey: ["inventory"],
+    queryKey: ["inventory", user?.id],
     queryFn: () => api.get("/api/inventory"),
   });
 
@@ -140,7 +141,7 @@ export default function InventoryPage() {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const data: Record<string, unknown> = {
-      supplierId: fd.get("supplierId"),
+      supplierId: isSupplierUser && user?.supplierId ? user.supplierId : fd.get("supplierId"),
       screenName: fd.get("screenName"),
       screenType: fd.get("screenType"),
       location: fd.get("location"),
@@ -166,7 +167,9 @@ export default function InventoryPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Live Inventory</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Real-time screen availability across all suppliers
+            {isSupplierUser
+              ? "Manage your organisation's screen inventory"
+              : "Real-time screen availability across all suppliers"}
           </p>
         </div>
         {canManage && (
@@ -187,15 +190,22 @@ export default function InventoryPage() {
                     <Label htmlFor="screenName">Screen Name</Label>
                     <Input id="screenName" name="screenName" required data-testid="input-screen-name" />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="supplierId">Supplier</Label>
-                    <select name="supplierId" required className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm" data-testid="select-supplier">
-                      <option value="">Select supplier</option>
-                      {suppliers.map((s) => (
-                        <option key={s.id} value={s.id}>{s.name}</option>
-                      ))}
-                    </select>
-                  </div>
+                  {isSupplierUser && user?.supplierId ? (
+                    <div className="space-y-2">
+                      <Label>Supplier</Label>
+                      <Input value={supplierMap[user.supplierId] || "Your Organisation"} disabled className="bg-muted" />
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Label htmlFor="supplierId">Supplier</Label>
+                      <select name="supplierId" required className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm" data-testid="select-supplier">
+                        <option value="">Select supplier</option>
+                        {suppliers.map((s) => (
+                          <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="screenType">Screen Type</Label>
                     <select name="screenType" required className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm" data-testid="select-screen-type">
