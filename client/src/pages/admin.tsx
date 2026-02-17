@@ -1,3 +1,9 @@
+/**
+ * Administration page accessible only to department_admin users. Contains three tabs:
+ * Users (create accounts and toggle active/inactive status), Suppliers (register OOH
+ * suppliers and toggle status), and Settings (placeholder cards for system configuration,
+ * audit log, data export, and integration settings).
+ */
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -23,6 +29,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Users, Building2, Settings, Loader2, Database, ScrollText, Download, Plug } from "lucide-react";
 
+/** All six system roles: department_admin, campaign_planner, finance_officer, supplier_admin, supplier_user, auditor. */
 const ROLES = [
   { value: "department_admin", label: "Department Admin" },
   { value: "campaign_planner", label: "Campaign Planner" },
@@ -32,6 +39,7 @@ const ROLES = [
   { value: "auditor", label: "Auditor" },
 ];
 
+/** Colour-coded Tailwind classes for role badges, giving each role a distinct visual identity. */
 const roleColors: Record<string, string> = {
   department_admin: "bg-purple-50 text-purple-700 border-purple-200",
   campaign_planner: "bg-blue-50 text-blue-700 border-blue-200",
@@ -84,6 +92,7 @@ export default function AdminPage() {
   );
 }
 
+/** Manages user accounts: lists all users, allows creating new accounts, and toggling active/inactive status. */
 function UsersTab() {
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -275,6 +284,7 @@ function UsersTab() {
   );
 }
 
+/** Manages supplier registrations: lists registered suppliers, allows adding new ones, and toggling status. */
 function SuppliersTab() {
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -458,6 +468,7 @@ function SuppliersTab() {
   );
 }
 
+/** Placeholder settings cards for system configuration, audit log, data export, and integration settings. */
 function SettingsTab() {
   const settingsCards = [
     {

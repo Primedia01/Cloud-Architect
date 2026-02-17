@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Bookings management page. Lists all site bookings across
+ * campaigns with search and status filtering. Each booking links to a campaign
+ * and supplier. Supports creating new bookings via a dialog form and viewing
+ * booking details in a slide-out sheet panel.
+ */
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -23,6 +29,7 @@ import {
 } from "@/components/ui/sheet";
 import { Plus, Search } from "lucide-react";
 
+/** Tailwind CSS classes for each booking status badge. */
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-50 text-yellow-700 border-yellow-200",
   approved: "bg-green-50 text-green-700 border-green-200",
@@ -31,6 +38,7 @@ const statusColors: Record<string, string> = {
   completed: "bg-green-50 text-green-700 border-green-200",
 };
 
+/** Human-readable labels for each booking status value. */
 const statusLabels: Record<string, string> = {
   pending: "Pending",
   approved: "Approved",
@@ -107,14 +115,18 @@ export default function BookingsPage() {
     });
   };
 
+  /** Opens the detail sheet panel for the selected booking row. */
   const handleRowClick = (booking: Booking) => {
     setSelectedBooking(booking);
     setSheetOpen(true);
   };
 
+  /** Maps campaign IDs to their display names for table rendering. */
   const campaignMap = new Map((campaigns ?? []).map((c) => [c.id, c.name]));
+  /** Maps supplier IDs to their display names for table rendering. */
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.name]));
 
+  /** Filters bookings by search query (site, location, media type) and selected status. */
   const filteredBookings = (bookings ?? []).filter((b) => {
     const matchesSearch =
       !searchQuery ||

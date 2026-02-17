@@ -1,3 +1,9 @@
+/**
+ * Invoices and Reporting page. The Invoices tab lists all invoices with campaign/supplier
+ * links, amounts in ZAR, status badges, and PDF download. The Reports tab shows financial
+ * summary cards (total invoiced, paid, outstanding, overdue), a monthly spend bar chart,
+ * and a payment status pie chart.
+ */
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -47,6 +53,7 @@ const formatDate = (date: string | Date | null) => {
   return new Date(date).toLocaleDateString("en-ZA");
 };
 
+/** Sample monthly spend data used to render the bar chart on the Reports tab. */
 const monthlySpendData = [
   { month: "Jul", amount: 245000 },
   { month: "Aug", amount: 312000 },
@@ -58,6 +65,7 @@ const monthlySpendData = [
   { month: "Feb", amount: 356000 },
 ];
 
+/** Sample payment status distribution data used to render the pie chart on the Reports tab. */
 const pieData = [
   { name: "Paid", value: 1250000, color: "#16a34a" },
   { name: "Outstanding", value: 480000, color: "#2563eb" },
@@ -116,6 +124,7 @@ export default function InvoicesPage() {
   );
 }
 
+/** Manages the invoice listing table and the create-invoice dialog with campaign/supplier selection. */
 function InvoicesTab({ invoices, campaigns, suppliers, loading, dialogOpen, setDialogOpen }: {
   invoices: Invoice[];
   campaigns: Campaign[];
@@ -319,6 +328,7 @@ function InvoicesTab({ invoices, campaigns, suppliers, loading, dialogOpen, setD
   );
 }
 
+/** Displays financial summary cards and visualisation charts (monthly spend bar chart, payment status pie chart). */
 function ReportsTab({ invoices }: { invoices: Invoice[] }) {
   const totalInvoiced = invoices.reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
   const totalPaid = invoices.filter((inv) => inv.status === "paid").reduce((sum, inv) => sum + Number(inv.amount || 0), 0);

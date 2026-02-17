@@ -1,3 +1,7 @@
+/**
+ * @fileoverview 404 Not Found page displayed when a route does not match any
+ * registered page.
+ */
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 

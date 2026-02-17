@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Login page for the OOH Booking System. Displays a centered
+ * sign-in form with username/password fields. On successful authentication,
+ * redirects to the dashboard.
+ */
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
@@ -14,6 +19,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  /** Submits login credentials via the auth context and redirects to the dashboard on success. */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");

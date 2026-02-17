@@ -1,3 +1,10 @@
+/**
+ * Live Inventory page showing real-time OOH screen availability across all suppliers.
+ * Displays stats cards (total, available, booked, maintenance), search and filter controls
+ * (region, status, screen type), a data table with screen details, and a slide-out detail
+ * panel with status update capability. Supplier-role users only see their own organisation's
+ * screens and cannot select a different supplier when adding new screens.
+ */
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
@@ -50,8 +57,10 @@ import {
   Wrench,
 } from "lucide-react";
 
+/** Formats numeric values as South African Rand (ZAR) currency strings. */
 const ZAR = new Intl.NumberFormat("en-ZA", { style: "currency", currency: "ZAR" });
 
+/** All nine South African provinces used for region filtering and selection. */
 const regions = [
   "Gauteng",
   "Western Cape",
@@ -64,8 +73,10 @@ const regions = [
   "Northern Cape",
 ];
 
+/** Supported OOH screen format categories for inventory classification. */
 const screenTypes = ["Billboard", "Digital Screen", "LED Wall", "Mega Billboard", "Street Furniture", "Transit", "Mall"];
 
+/** Maps each inventory status to its display label, Tailwind colour classes, and icon for badge rendering. */
 const statusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   available: { label: "Available", color: "bg-emerald-100 text-emerald-700 border-emerald-200", icon: CheckCircle },
   booked: { label: "Booked", color: "bg-blue-100 text-blue-700 border-blue-200", icon: Clock },
@@ -83,7 +94,9 @@ export default function InventoryPage() {
   const [selectedItem, setSelectedItem] = useState<Inventory | null>(null);
   const [addOpen, setAddOpen] = useState(false);
 
+  /** True when the logged-in user has a supplier role; restricts visibility to their own organisation's screens. */
   const isSupplierUser = hasRole("supplier_admin", "supplier_user");
+  /** True when the user is allowed to add or update inventory (department admins and supplier roles). */
   const canManage = hasRole("department_admin", "supplier_admin", "supplier_user");
 
   const { data: items = [], isLoading } = useQuery<Inventory[]>({
@@ -98,6 +111,7 @@ export default function InventoryPage() {
 
   const supplierMap = Object.fromEntries(suppliers.map((s) => [s.id, s.name]));
 
+  /** Mutation to create a new inventory screen record via POST /api/inventory. */
   const createMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) => api.post("/api/inventory", data),
     onSuccess: () => {
@@ -110,6 +124,7 @@ export default function InventoryPage() {
     },
   });
 
+  /** Mutation to patch an existing inventory item (e.g. status change) via PATCH /api/inventory/:id. */
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) =>
       api.patch(`/api/inventory/${id}`, data),
@@ -119,6 +134,7 @@ export default function InventoryPage() {
     },
   });
 
+  /** Client-side filtered list: applies search text, region, status, and screen type filters to the full inventory. */
   const filtered = items.filter((item) => {
     const matchSearch =
       !search ||
@@ -130,6 +146,7 @@ export default function InventoryPage() {
     return matchSearch && matchRegion && matchStatus && matchType;
   });
 
+  /** Computed summary statistics derived from the unfiltered inventory list for the stats cards. */
   const stats = {
     total: items.length,
     available: items.filter((i) => i.status === "available").length,
@@ -137,6 +154,7 @@ export default function InventoryPage() {
     maintenance: items.filter((i) => i.status === "maintenance").length,
   };
 
+  /** Collects form data for a new screen. Supplier-role users have their supplierId auto-assigned from their profile. */
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);

@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Campaigns management page. Displays all OOH advertising
+ * campaigns in a data table with status badges, budget (ZAR), region, and date
+ * range. Supports creating new campaigns via a dialog form with fields for
+ * name, description, budget, SA province, dates, and target reach.
+ */
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -22,11 +28,13 @@ import {
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 
+/** The nine South African provinces used as region options for campaigns. */
 const SA_PROVINCES = [
   "Eastern Cape", "Free State", "Gauteng", "KwaZulu-Natal",
   "Limpopo", "Mpumalanga", "North West", "Northern Cape", "Western Cape",
 ];
 
+/** Tailwind CSS classes for each campaign status badge. */
 const statusColors: Record<string, string> = {
   draft: "bg-gray-100 text-gray-700 border-gray-200",
   pending_approval: "bg-yellow-50 text-yellow-700 border-yellow-200",
@@ -36,6 +44,7 @@ const statusColors: Record<string, string> = {
   cancelled: "bg-red-50 text-red-700 border-red-200",
 };
 
+/** Human-readable labels for each campaign status value. */
 const statusLabels: Record<string, string> = {
   draft: "Draft",
   pending_approval: "Pending Approval",
@@ -45,11 +54,13 @@ const statusLabels: Record<string, string> = {
   cancelled: "Cancelled",
 };
 
+/** Formats a value as South African Rand (ZAR) currency, returning a dash for null/zero values. */
 const formatCurrency = (value: string | number | null) => {
   if (!value) return "—";
   return new Intl.NumberFormat("en-ZA", { style: "currency", currency: "ZAR" }).format(Number(value));
 };
 
+/** Formats a date value using the en-ZA locale, returning a dash for null values. */
 const formatDate = (date: string | Date | null) => {
   if (!date) return "—";
   return new Date(date).toLocaleDateString("en-ZA");
@@ -67,6 +78,7 @@ export default function CampaignsPage() {
     queryKey: ["/api/campaigns"],
   });
 
+  /** Sends a POST request to create a new campaign and refreshes the campaign list on success. */
   const createMutation = useMutation({
     mutationFn: (data: Partial<InsertCampaign>) => api.post<Campaign>("/api/campaigns", data),
     onSuccess: () => {

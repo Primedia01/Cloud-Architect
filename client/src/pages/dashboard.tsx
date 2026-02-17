@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Dashboard page displaying an overview of campaign and booking
+ * statistics. Shows six stat cards (total campaigns, active campaigns, total
+ * bookings, pending bookings, completed bookings, total spend in ZAR), a
+ * campaign status distribution bar chart, and a recent activity feed.
+ */
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api";
@@ -6,9 +12,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart3, TrendingUp, FileText, Clock, CheckCircle, DollarSign } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
+/** Formats a numeric value as South African Rand (ZAR) currency. */
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-ZA", { style: "currency", currency: "ZAR" }).format(value);
 
+/** Sample data for the campaign status distribution bar chart. */
 const chartData = [
   { name: "Draft", value: 3 },
   { name: "Pending", value: 5 },
@@ -18,6 +26,7 @@ const chartData = [
   { name: "Cancelled", value: 1 },
 ];
 
+/** Shape of the dashboard statistics returned by the API. */
 interface DashboardStats {
   totalCampaigns: number;
   activeCampaigns: number;
@@ -34,6 +43,7 @@ export default function DashboardPage() {
     queryKey: ["/api/dashboard/stats"],
   });
 
+  /** Configuration for the six summary stat cards rendered on the dashboard. */
   const statCards = [
     { title: "Total Campaigns", value: stats?.totalCampaigns ?? 0, icon: FileText, id: "total-campaigns" },
     { title: "Active Campaigns", value: stats?.activeCampaigns ?? 0, icon: TrendingUp, id: "active-campaigns" },

@@ -1,3 +1,8 @@
+/**
+ * Document Management page for uploading and tracking campaign artwork, proof-of-flighting
+ * photos (with GPS geotag data), and compliance documents (SBD/CSO). Organised into three
+ * tabs. Each tab has an upload form and a table listing existing documents with status badges.
+ */
 import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -19,6 +24,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Upload, FileText, MapPin, Shield, Download, Loader2 } from "lucide-react";
 
+/** Maximum allowed upload file size in bytes (5 MB). */
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 const statusColors: Record<string, string> = {
@@ -115,6 +121,7 @@ export default function DocumentsPage() {
   );
 }
 
+/** Handles artwork file uploads linked to campaigns and displays a table of existing artwork documents. */
 function ArtworkTab({ documents, campaigns, loading, userId }: {
   documents: Document[];
   campaigns: Campaign[];
@@ -255,6 +262,7 @@ function ArtworkTab({ documents, campaigns, loading, userId }: {
   );
 }
 
+/** Handles proof-of-flighting photo uploads with GPS coordinates and capture timestamp metadata. */
 function ProofTab({ documents, campaigns, loading, userId }: {
   documents: Document[];
   campaigns: Campaign[];
@@ -440,6 +448,7 @@ function ProofTab({ documents, campaigns, loading, userId }: {
   );
 }
 
+/** Handles SBD and CSO compliance document uploads and lists existing compliance records. */
 function ComplianceTab({ documents, campaigns, loading, userId }: {
   documents: Document[];
   campaigns: Campaign[];
