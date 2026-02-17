@@ -1,3 +1,9 @@
+/**
+ * @file Main application layout with role-based sidebar navigation.
+ * Renders a persistent sidebar, a top header bar, and a scrollable main content area.
+ * Navigation items are filtered based on the authenticated user's role.
+ */
+
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
@@ -21,6 +27,7 @@ import {
   Monitor,
 } from "lucide-react";
 
+/** Describes a sidebar navigation link with its label, route, icon, and permitted roles. */
 interface NavItem {
   label: string;
   href: string;
@@ -28,6 +35,7 @@ interface NavItem {
   roles: string[];
 }
 
+/** Sidebar navigation entries. Each item specifies which user roles may see it. */
 const navItems: NavItem[] = [
   {
     label: "Dashboard",
@@ -73,6 +81,7 @@ const navItems: NavItem[] = [
   },
 ];
 
+/** Maps internal role identifiers to human-readable display names. */
 const roleLabels: Record<string, string> = {
   department_admin: "Department Admin",
   campaign_planner: "Campaign Planner",
@@ -82,6 +91,10 @@ const roleLabels: Record<string, string> = {
   auditor: "Auditor",
 };
 
+/**
+ * Root layout component that renders the collapsible sidebar, top header bar,
+ * and scrollable main content area. Navigation links are filtered by user role.
+ */
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout, hasRole } = useAuth();
   const [location] = useLocation();

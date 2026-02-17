@@ -1,8 +1,17 @@
+/**
+ * @file Database schema for the Government Out-of-Home (OOH) Booking System.
+ *
+ * Defines all PostgreSQL tables, enums, insert schemas, and TypeScript types
+ * used across the application. Built with Drizzle ORM and validated with Zod
+ * via drizzle-zod.
+ */
+
 import { sql } from "drizzle-orm";
 import { pgTable, text, varchar, integer, timestamp, decimal, boolean, pgEnum } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+/** Defines the set of roles a user can hold within the system. */
 export const userRoleEnum = pgEnum("user_role", [
   "department_admin",
   "campaign_planner",
@@ -12,6 +21,7 @@ export const userRoleEnum = pgEnum("user_role", [
   "auditor",
 ]);
 
+/** Represents the lifecycle states of an advertising campaign. */
 export const campaignStatusEnum = pgEnum("campaign_status", [
   "draft",
   "pending_approval",
@@ -21,6 +31,7 @@ export const campaignStatusEnum = pgEnum("campaign_status", [
   "cancelled",
 ]);
 
+/** Represents the approval and progress states of an individual booking. */
 export const bookingStatusEnum = pgEnum("booking_status", [
   "pending",
   "approved",
@@ -29,6 +40,7 @@ export const bookingStatusEnum = pgEnum("booking_status", [
   "completed",
 ]);
 
+/** Categorises documents uploaded to the system (artwork, proofs, compliance, invoices). */
 export const documentTypeEnum = pgEnum("document_type", [
   "artwork",
   "proof_of_flighting",
@@ -38,6 +50,10 @@ export const documentTypeEnum = pgEnum("document_type", [
   "other",
 ]);
 
+/**
+ * System users including government staff and supplier personnel.
+ * Each user is assigned a role and may optionally be linked to a supplier.
+ */
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
@@ -49,6 +65,10 @@ export const users = pgTable("users", {
   active: boolean("active").notNull().default(true),
 });
 
+/**
+ * OOH media suppliers who own and manage advertising inventory.
+ * Referenced by users (supplier staff), bookings, invoices, and inventory.
+ */
 export const suppliers = pgTable("suppliers", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
@@ -59,6 +79,11 @@ export const suppliers = pgTable("suppliers", {
   active: boolean("active").notNull().default(true),
 });
 
+/**
+ * Advertising campaigns created by government departments.
+ * A campaign groups one or more bookings and tracks budget, timeline, and region.
+ * Related to bookings, documents, and invoices via campaignId.
+ */
 export const campaigns = pgTable("campaigns", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
@@ -73,6 +98,10 @@ export const campaigns = pgTable("campaigns", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+/**
+ * Individual site bookings within a campaign, placed with a specific supplier.
+ * Links a campaign to a supplier's OOH site and tracks cost, schedule, and status.
+ */
 export const bookings = pgTable("bookings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   campaignId: varchar("campaign_id").notNull(),
@@ -87,6 +116,11 @@ export const bookings = pgTable("bookings", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+/**
+ * Documents attached to campaigns or bookings, such as artwork files,
+ * proof-of-flighting photos, compliance records, and invoices.
+ * Optionally stores GPS coordinates for geotagged evidence.
+ */
 export const documents = pgTable("documents", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   campaignId: varchar("campaign_id"),
@@ -103,6 +137,10 @@ export const documents = pgTable("documents", {
   uploadedAt: timestamp("uploaded_at").notNull().defaultNow(),
 });
 
+/**
+ * Financial invoices raised against campaigns, optionally linked to a supplier.
+ * Tracks amounts, payment status, issue dates, and due dates.
+ */
 export const invoices = pgTable("invoices", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   campaignId: varchar("campaign_id").notNull(),
@@ -115,6 +153,7 @@ export const invoices = pgTable("invoices", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+/** Represents the availability states of an inventory item (OOH screen or site). */
 export const inventoryStatusEnum = pgEnum("inventory_status", [
   "available",
   "booked",
@@ -122,6 +161,11 @@ export const inventoryStatusEnum = pgEnum("inventory_status", [
   "reserved",
 ]);
 
+/**
+ * Supplier-owned OOH advertising inventory (screens and sites).
+ * Stores physical attributes, location data, pricing tiers, and availability.
+ * Referenced by bookings when a site is reserved for a campaign.
+ */
 export const inventory = pgTable("inventory", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   supplierId: varchar("supplier_id").notNull(),
@@ -148,10 +192,12 @@ export const inventory = pgTable("inventory", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+/** Insert schema and types for the inventory table (excludes auto-generated id and updatedAt). */
 export const insertInventorySchema = createInsertSchema(inventory).omit({ id: true, updatedAt: true });
 export type InsertInventory = z.infer<typeof insertInventorySchema>;
 export type Inventory = typeof inventory.$inferSelect;
 
+/** Insert schemas for all remaining tables (excludes auto-generated fields). */
 export const insertUserSchema = createInsertSchema(users).omit({ id: true });
 export const insertSupplierSchema = createInsertSchema(suppliers).omit({ id: true });
 export const insertCampaignSchema = createInsertSchema(campaigns).omit({ id: true, createdAt: true });
@@ -159,6 +205,7 @@ export const insertBookingSchema = createInsertSchema(bookings).omit({ id: true,
 export const insertDocumentSchema = createInsertSchema(documents).omit({ id: true, uploadedAt: true });
 export const insertInvoiceSchema = createInsertSchema(invoices).omit({ id: true, createdAt: true });
 
+/** Insert and select types for each table, used throughout the application. */
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertSupplier = z.infer<typeof insertSupplierSchema>;

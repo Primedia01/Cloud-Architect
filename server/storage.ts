@@ -1,3 +1,10 @@
+/**
+ * @file Data access layer for the application.
+ * Uses Drizzle ORM with a PostgreSQL (Neon-backed) database to perform
+ * all persistence operations. Exports a singleton DatabaseStorage instance
+ * that implements the IStorage interface.
+ */
+
 import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { eq, count, sum, and } from "drizzle-orm";
@@ -16,6 +23,7 @@ import {
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const db = drizzle(pool, { schema });
 
+/** Aggregated statistics displayed on the main dashboard. */
 export interface DashboardStats {
   totalCampaigns: number;
   activeCampaigns: number;
@@ -25,6 +33,11 @@ export interface DashboardStats {
   completedBookings: number;
 }
 
+/**
+ * Defines all CRUD operations available for persistent storage.
+ * Each entity exposes standard get, create, and update methods;
+ * some also support delete or filtered queries.
+ */
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
@@ -72,7 +85,10 @@ export interface IStorage {
   deleteInventoryItem(id: string): Promise<boolean>;
 }
 
+/** PostgreSQL-backed implementation of IStorage using Drizzle ORM queries. */
 export class DatabaseStorage implements IStorage {
+  // --- User operations ---
+
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
@@ -97,6 +113,8 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
+  // --- Supplier operations ---
+
   async getSuppliers(): Promise<Supplier[]> {
     return db.select().from(suppliers);
   }
@@ -115,6 +133,8 @@ export class DatabaseStorage implements IStorage {
     const [updated] = await db.update(suppliers).set(data).where(eq(suppliers.id, id)).returning();
     return updated;
   }
+
+  // --- Campaign operations ---
 
   async getCampaigns(): Promise<Campaign[]> {
     return db.select().from(campaigns);
@@ -140,6 +160,8 @@ export class DatabaseStorage implements IStorage {
     return result.length > 0;
   }
 
+  // --- Booking operations ---
+
   async getBookings(): Promise<Booking[]> {
     return db.select().from(bookings);
   }
@@ -162,6 +184,8 @@ export class DatabaseStorage implements IStorage {
     const [updated] = await db.update(bookings).set(data).where(eq(bookings.id, id)).returning();
     return updated;
   }
+
+  // --- Document operations ---
 
   async getDocuments(): Promise<Document[]> {
     return db.select().from(documents);
@@ -190,6 +214,8 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
+  // --- Invoice operations ---
+
   async getInvoices(): Promise<Invoice[]> {
     return db.select().from(invoices);
   }
@@ -212,6 +238,8 @@ export class DatabaseStorage implements IStorage {
     const [updated] = await db.update(invoices).set(data).where(eq(invoices.id, id)).returning();
     return updated;
   }
+
+  // --- Inventory operations ---
 
   async getInventory(): Promise<Inventory[]> {
     return db.select().from(inventory);
@@ -241,6 +269,13 @@ export class DatabaseStorage implements IStorage {
     return result.length > 0;
   }
 
+  // --- Dashboard statistics ---
+
+  /**
+   * Aggregates key metrics across campaigns and bookings by running
+   * individual count/sum queries for total campaigns, active campaigns,
+   * total bookings, cumulative spend, pending bookings, and completed bookings.
+   */
   async getDashboardStats(): Promise<DashboardStats> {
     const [campaignStats] = await db
       .select({ total: count() })

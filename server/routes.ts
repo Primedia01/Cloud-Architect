@@ -1,3 +1,11 @@
+/**
+ * @file REST API route definitions for the Government OOH (Out-of-Home) Booking System.
+ *
+ * Registers all HTTP endpoints for authentication, user management, supplier
+ * management, campaign lifecycle, booking operations, document handling,
+ * invoice processing, inventory management, and seed data generation.
+ */
+
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
@@ -16,6 +24,10 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+
+  // ---------------------------------------------------------------------------
+  // Authentication Routes
+  // ---------------------------------------------------------------------------
 
   app.post("/api/auth/login", async (req: Request, res: Response) => {
     try {
@@ -51,6 +63,10 @@ export async function registerRoutes(
     }
   });
 
+  // ---------------------------------------------------------------------------
+  // User Management Routes
+  // ---------------------------------------------------------------------------
+
   app.get("/api/users", async (_req: Request, res: Response) => {
     try {
       const allUsers = await storage.getUsers();
@@ -85,6 +101,10 @@ export async function registerRoutes(
     }
   });
 
+  // ---------------------------------------------------------------------------
+  // Supplier Management Routes
+  // ---------------------------------------------------------------------------
+
   app.get("/api/suppliers", async (_req: Request, res: Response) => {
     try {
       const allSuppliers = await storage.getSuppliers();
@@ -118,6 +138,10 @@ export async function registerRoutes(
       return res.status(500).json({ message: "Internal server error" });
     }
   });
+
+  // ---------------------------------------------------------------------------
+  // Campaign Routes
+  // ---------------------------------------------------------------------------
 
   app.get("/api/campaigns", async (_req: Request, res: Response) => {
     try {
@@ -177,6 +201,10 @@ export async function registerRoutes(
     }
   });
 
+  // ---------------------------------------------------------------------------
+  // Booking Routes
+  // ---------------------------------------------------------------------------
+
   app.get("/api/bookings", async (req: Request, res: Response) => {
     try {
       const { campaignId } = req.query;
@@ -228,6 +256,10 @@ export async function registerRoutes(
     }
   });
 
+  // ---------------------------------------------------------------------------
+  // Document Routes
+  // ---------------------------------------------------------------------------
+
   app.get("/api/documents", async (req: Request, res: Response) => {
     try {
       const { campaignId, bookingId } = req.query;
@@ -258,6 +290,10 @@ export async function registerRoutes(
       return res.status(500).json({ message: "Internal server error" });
     }
   });
+
+  // ---------------------------------------------------------------------------
+  // Invoice Routes
+  // ---------------------------------------------------------------------------
 
   app.get("/api/invoices", async (req: Request, res: Response) => {
     try {
@@ -298,12 +334,32 @@ export async function registerRoutes(
     }
   });
 
+  // ---------------------------------------------------------------------------
+  // Inventory Routes
+  //
+  // Inventory endpoints enforce supplier-scoped access control. When the
+  // authenticated user has a supplier role (supplier_admin or supplier_user),
+  // results are automatically filtered to only include inventory items
+  // belonging to that user's supplier. Non-supplier users (e.g. department
+  // admins, planners) may view all inventory or filter by supplier explicitly.
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Extracts the authenticated user from the request by reading the "user-id"
+   * header and looking up the corresponding user record in storage.
+   * Returns undefined if the header is missing or the user does not exist.
+   */
   async function getRequestUser(req: Request) {
     const userId = req.headers["user-id"] as string;
     if (!userId) return undefined;
     return storage.getUser(userId);
   }
 
+  /**
+   * Determines whether the given role string represents a supplier-level role.
+   * Supplier roles are restricted to viewing and managing only their own
+   * supplier's inventory and related resources.
+   */
   function isSupplierRole(role: string) {
     return role === "supplier_admin" || role === "supplier_user";
   }
@@ -403,6 +459,15 @@ export async function registerRoutes(
     }
   });
 
+  // ---------------------------------------------------------------------------
+  // Seed Data
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Populates the database with initial test data including default users,
+   * suppliers, campaigns, bookings, invoices, and inventory items. This
+   * endpoint is idempotent -- it skips creation if seed data already exists.
+   */
   app.post("/api/seed", async (_req: Request, res: Response) => {
     try {
       const existing = await storage.getUserByUsername("admin");

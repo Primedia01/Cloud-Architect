@@ -1,7 +1,20 @@
+/**
+ * @file HTTP client module that wraps the Fetch API.
+ * Automatically attaches authentication headers from localStorage,
+ * handles 401 responses by redirecting to the login page, and
+ * provides typed convenience methods for common HTTP verbs.
+ */
+
 import { queryClient } from "./queryClient";
 
 const API_BASE = "";
 
+/**
+ * Sends an HTTP request with automatic auth header injection.
+ * Reads the user-id from localStorage and attaches it as a request header.
+ * On a 401 response, clears stored credentials and redirects to /login.
+ * Parses the JSON response body and returns it as the specified type.
+ */
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const userId = localStorage.getItem("ooh_user_id");
   const headers: Record<string, string> = {
@@ -30,6 +43,7 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
   return res.json();
 }
 
+/** Convenience methods for GET, POST, PATCH, and DELETE requests. */
 export const api = {
   get: <T>(url: string) => request<T>(url),
   post: <T>(url: string, data: unknown) =>
